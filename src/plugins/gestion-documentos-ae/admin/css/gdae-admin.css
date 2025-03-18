@@ -1,0 +1,152 @@
+/**
+ * Estilos para el área de administración.
+ *
+ * @link       https://accioneficaz.com
+ * @since      1.0.0
+ *
+ * @package    Gestion_Documentos_AE
+ */
+
+/* Estilos generales */
+.gdae-meta-box-container {
+    padding: 10px 0;
+}
+
+.gdae-meta-field {
+    margin-bottom: 20px;
+}
+
+.gdae-meta-field label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.gdae-meta-field .description {
+    margin-top: 5px;
+    color: #666;
+}
+
+.required {
+    color: red;
+}
+
+/* Estilos para la página de admin del plugin */
+.gdae-admin-container {
+    max-width: 1200px;
+    margin: 20px 0;
+}
+
+/* Header */
+.gdae-admin-header {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e2e4e7;
+}
+
+.gdae-admin-header__title h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 24px;
+    font-weight: 600;
+    color: #23282d;
+}
+
+.gdae-admin-header__description {
+    font-size: 16px;
+    color: #606a73;
+    margin: 0;
+}
+
+/* Cards */
+.gdae-admin-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    margin-bottom: 30px;
+}
+
+.gdae-admin-card {
+    background: #fff;
+    border: 1px solid #e2e4e7;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.gdae-admin-card__header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #f0f0f1;
+    background-color: #f8f9fa;
+}
+
+.gdae-admin-card__header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #23282d;
+}
+
+.gdae-admin-card__content {
+    padding: 20px;
+}
+
+/* Estadísticas */
+.gdae-admin-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 15px;
+}
+
+.gdae-admin-stat {
+    flex: 1 1 100px;
+    padding: 15px;
+    text-align: center;
+    border: 1px solid #e2e4e7;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+}
+
+.gdae-admin-stat__number {
+    display: block;
+    font-size: 26px;
+    font-weight: 700;
+    color: #2271b1;
+    margin-bottom: 5px;
+}
+
+.gdae-admin-stat__label {
+    font-size: 14px;
+    color: #606a73;
+}
+
+/* Estilos para selects e inputs */
+.gdae-meta-field select,
+.gdae-meta-field input[type="text"],
+.gdae-meta-field input[type="url"] {
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.gdae-meta-field select:focus,
+.gdae-meta-field input[type="text"]:focus,
+.gdae-meta-field input[type="url"]:focus {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+    outline: none;
+}
+
+/* Responsive */
+@media screen and (max-width: 782px) {
+    .gdae-meta-field {
+        flex-direction: column;
+    }
+    
+    .gdae-meta-field__label,
+    .gdae-meta-field__input {
+        flex: 1 1 100%;
+    }
+}

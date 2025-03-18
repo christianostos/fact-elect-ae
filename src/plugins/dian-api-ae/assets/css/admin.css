@@ -1,0 +1,257 @@
+/**
+ * Estilos del área de administración
+ */
+
+/* Dashboard y Cards */
+.dian-api-dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.dian-api-card {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+    margin-bottom: 20px;
+}
+
+.dian-api-card h2 {
+    border-bottom: 1px solid #ccd0d4;
+    font-size: 14px;
+    padding: 12px 15px;
+    margin: 0;
+    line-height: 1.4;
+    display: flex;
+    align-items: center;
+}
+
+.dian-api-card h2 .dashicons {
+    margin-right: 8px;
+    color: #0073aa;
+}
+
+.dian-api-card-content {
+    padding: 15px;
+}
+
+/* Tabs */
+.dian-api-tabs {
+    margin-top: 20px;
+}
+
+.dian-api-tab-navigation {
+    display: flex;
+    border-bottom: 1px solid #ccd0d4;
+    margin-bottom: 20px;
+}
+
+.dian-api-tab-link {
+    padding: 10px 15px;
+    margin-right: 5px;
+    background: #f7f7f7;
+    border: 1px solid #ccd0d4;
+    border-bottom: none;
+    text-decoration: none;
+    color: #444;
+    font-weight: 600;
+    border-radius: 4px 4px 0 0;
+}
+
+.dian-api-tab-link.active {
+    background: #fff;
+    border-bottom-color: #fff;
+    margin-bottom: -1px;
+}
+
+.dian-api-tab-content {
+    display: none;
+}
+
+.dian-api-tab-content.active {
+    display: block;
+}
+
+/* Secciones */
+.dian-api-section {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+    margin-bottom: 20px;
+}
+
+.dian-api-section-header {
+    border-bottom: 1px solid #ccd0d4;
+    padding: 12px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dian-api-section-header h3 {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.dian-api-table-container {
+    padding: 15px;
+    overflow-x: auto;
+}
+
+/* Formularios */
+.dian-api-form {
+    padding: 15px;
+}
+
+.dian-api-form-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.dian-api-form-field {
+    flex: 1;
+    min-width: 300px;
+    margin-right: 15px;
+    margin-bottom: 15px;
+}
+
+.dian-api-form-field:last-child {
+    margin-right: 0;
+}
+
+.dian-api-form-field label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.dian-api-form-field input,
+.dian-api-form-field select,
+.dian-api-form-field textarea {
+    width: 100%;
+}
+
+.dian-api-form-actions {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.dian-api-form-actions .spinner {
+    float: none;
+    margin-left: 10px;
+}
+
+/* Estados */
+.dian-api-dependency-status {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.dian-api-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.dian-api-status .dashicons {
+    margin-right: 5px;
+}
+
+.dian-api-status-ok {
+    background-color: #d4f4e2;
+    color: #0a6e31;
+}
+
+.dian-api-status-warning {
+    background-color: #fef8ee;
+    color: #b44d12;
+}
+
+.dian-api-status-error {
+    background-color: #f9e2e2;
+    color: #b32d2e;
+}
+
+/* Acciones Rápidas */
+.dian-api-quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.dian-api-quick-actions .button {
+    display: flex;
+    align-items: center;
+}
+
+.dian-api-quick-actions .dashicons {
+    margin-right: 5px;
+}
+
+/* Documentos */
+.dian-api-document-list {
+    margin-top: 15px;
+}
+
+.dian-api-document-actions {
+    display: flex;
+    gap: 5px;
+}
+
+/* Validador */
+.dian-api-validator-result {
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.dian-api-validator-result.valid {
+    background-color: #d4f4e2;
+    color: #0a6e31;
+    border: 1px solid #0a6e31;
+}
+
+.dian-api-validator-result.invalid {
+    background-color: #f9e2e2;
+    color: #b32d2e;
+    border: 1px solid #b32d2e;
+}
+
+.dian-api-validator-errors {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f8f8f8;
+    border-radius: 4px;
+}
+
+/* Responsive */
+@media screen and (max-width: 782px) {
+    .dian-api-dashboard {
+        grid-template-columns: 1fr;
+    }
+    
+    .dian-api-form-row {
+        flex-direction: column;
+    }
+    
+    .dian-api-form-field {
+        margin-right: 0;
+    }
+    
+    .dian-api-tab-navigation {
+        flex-wrap: wrap;
+    }
+    
+    .dian-api-tab-link {
+        margin-bottom: 5px;
+    }
+}
