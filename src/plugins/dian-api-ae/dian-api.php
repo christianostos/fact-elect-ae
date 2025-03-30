@@ -17,6 +17,7 @@ if (!defined('ABSPATH')) {
 define('DIAN_API_VERSION', '1.0.0');
 define('DIAN_API_PATH', plugin_dir_path(__FILE__));
 define('DIAN_API_URL', plugin_dir_url(__FILE__));
+define('DIAN_API_FILE', __FILE__); 
 
 // Cargar dependencias básicas
 require_once DIAN_API_PATH . 'includes/class-dian-api-dependencies.php';
@@ -122,6 +123,8 @@ class DIAN_Facturacion_API {
         
         // Inicializar la API REST
         $this->rest_api->inicializar();
+
+        
     }
     
     /**
@@ -177,5 +180,10 @@ class DIAN_Facturacion_API {
     }
 }
 
+
+
 // Inicializar el plugin
 DIAN_Facturacion_API::get_instance();
+
+// Inicializar el sistema de notificaciones
+add_action('init', array('DIAN_API_Notices', 'init'));

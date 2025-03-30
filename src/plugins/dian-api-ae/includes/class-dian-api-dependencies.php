@@ -35,10 +35,17 @@ class DIAN_API_Dependencies {
     public static function check_dependencies() {
         $dependencies_available = true;
         
-        // Verificar mPDF pero solo mostrar aviso, no intentar cargar
-        if (!class_exists('\Mpdf\Mpdf')) {
-            $dependencies_available = false;
-            add_action('admin_notices', array(__CLASS__, 'mpdf_missing_notice'));
+        // Verificar mPDF o TCPDF
+        $mpdf_available = class_exists('Mpdf\Mpdf') || file_exists(DIAN_API_PATH . 'vendor/mpdf/mpdf/src/Mpdf.php');
+        $tcpdf_available = class_exists('TCPDF') || file_exists(DIAN_API_PATH . 'vendor/tcpdf/tcpdf.php') || 
+                        file_exists(DIAN_API_PATH . 'lib/phpqrcode/bindings/tcpdf/tcpdf.php');
+        
+        if (!$mpdf_available && !$tcpdf_available) {
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-warning is-dismissible">
+                    <p><strong>Plugin Facturación Electrónica DIAN:</strong> La generación de PDF requiere una biblioteca de PDF. TCPDF se instalará automáticamente la próxima vez que se genere un PDF.</p>
+                </div>';
+            });
         }
         
         // Verificar PHP QR Code

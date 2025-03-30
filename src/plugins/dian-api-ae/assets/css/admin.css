@@ -233,6 +233,52 @@
     border-radius: 4px;
 }
 
+/* Alertas y cards para herramientas */
+.dian-api-alert {
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+}
+
+.dian-api-alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.dian-api-alert-warning {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+
+.dian-api-alert-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.dian-api-alert p {
+    margin: 0;
+}
+
+.dian-api-alert ul {
+    margin-top: 10px;
+    margin-bottom: 0;
+}
+
+.dian-api-card {
+    background: #fff;
+    border: 1px solid #e2e4e7;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+    margin-bottom: 20px;
+}
+
+.dian-api-card-content {
+    padding: 15px;
+}
+
+
 /* Responsive */
 @media screen and (max-width: 782px) {
     .dian-api-dashboard {
@@ -254,4 +300,255 @@
     .dian-api-tab-link {
         margin-bottom: 5px;
     }
+}
+
+/* Estilos para certificados */
+.dian-api-certificate-help {
+    font-style: italic;
+    color: #666;
+    margin-top: 5px;
+}
+
+.dian-api-form-field .required {
+    color: red;
+}
+
+.dian-api-certificate-status {
+    margin-top: 10px;
+}
+
+/* Mejoras visuales para el formulario */
+.dian-api-form-row {
+    margin-bottom: 20px;
+}
+
+.dian-api-form-field label {
+    font-weight: 600;
+}
+
+.dian-api-form-field input[type="text"],
+.dian-api-form-field input[type="password"],
+.dian-api-form-field select {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Estilos para carga de certificado */
+.certificado-upload-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.certificado-upload-container input[type="text"] {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+.upload-buttons {
+    display: flex;
+    align-items: center;
+}
+
+.upload-buttons .spinner {
+    margin-left: 5px;
+}
+
+/* Estilos para botones de acción */
+.eliminar-cliente {
+    margin-left: 5px;
+    color: #a00;
+}
+
+.eliminar-cliente:hover {
+    color: #dc3232;
+    border-color: #dc3232;
+}
+
+/* Campos con botón de copia */
+.copy-field-container {
+    display: flex;
+    align-items: center;
+}
+
+.copy-field-container input {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+.dian-api-alert {
+    padding: 10px 15px;
+    border-left: 4px solid;
+    margin-bottom: 20px;
+    background-color: #f8f8f8;
+}
+
+.dian-api-alert-warning {
+    border-left-color: #ffb900;
+    background-color: #fff8e5;
+}
+
+#api-key-result {
+    margin-top: 20px;
+}
+
+/* Botones en tabla de API Keys */
+.eliminar-api-key {
+    margin-left: 5px;
+    color: #a00;
+}
+
+.eliminar-api-key:hover {
+    color: #dc3232;
+    border-color: #dc3232;
+}
+
+/* Estilos para estados de documentos */
+.dian-api-status {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-weight: bold;
+}
+
+.dian-api-status-ok {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.dian-api-status-warning {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.dian-api-status-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+.dian-api-status-error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Estilos para el modal de verificación de estado */
+.dian-api-status-result {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+}
+
+.dian-api-status-result ul {
+    margin-left: 20px;
+}
+
+.dian-api-document-modal-actions {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #ddd;
+    text-align: right;
+}
+
+/* Estilos mejorados para el modal */
+.dian-api-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.dian-api-modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 900px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+}
+
+.dian-api-modal-close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.dian-api-modal-close:hover,
+.dian-api-modal-close:focus {
+    color: black;
+    text-decoration: none;
+}
+
+.dian-api-section {
+    margin-bottom: 20px;
+}
+
+.dian-api-section-header {
+    margin-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+.dian-api-section-header h3 {
+    margin: 0;
+    padding: 0;
+}
+
+/* Progreso del Set de Pruebas */
+.dian-api-progress-bar {
+    width: 100%;
+    height: 20px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    margin: 10px 0;
+    overflow: hidden;
+}
+
+.dian-api-progress {
+    height: 100%;
+    background-color: #0073aa;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+/* Alertas */
+.dian-api-alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.dian-api-alert-success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+
+.dian-api-alert-info {
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+    color: #0c5460;
+}
+
+.dian-api-alert-warning {
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+    color: #856404;
+}
+
+.dian-api-alert-error {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
 }

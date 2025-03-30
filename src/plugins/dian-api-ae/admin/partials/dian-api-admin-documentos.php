@@ -125,6 +125,10 @@ if (!empty($cliente_seleccionado)) {
                                         Ver
                                     </button>
                                     
+                                    <button type="button" class="button button-small view-pdf" data-id="<?php echo esc_attr($documento['id']); ?>">
+                                        PDF
+                                    </button>
+                                    
                                     <?php if ($documento['estado'] == 'generado'): ?>
                                         <button type="button" class="button button-small send-document" data-cliente-id="<?php echo esc_attr($documento['cliente_id']); ?>" data-prefijo="<?php echo esc_attr($documento['prefijo']); ?>" data-numero="<?php echo esc_attr($documento['numero']); ?>" data-tipo="<?php echo esc_attr($documento['tipo_documento']); ?>">
                                             Enviar
@@ -153,25 +157,17 @@ if (!empty($cliente_seleccionado)) {
         <div id="documento-detalles"></div>
     </div>
 </div>
-
 <script type="text/javascript">
 jQuery(document).ready(function($) {
-    // Ver documento
-    $('.view-document').on('click', function() {
-        // Implementación pendiente
-        alert('Funcionalidad en desarrollo');
-    });
+    // La mayoría de la funcionalidad ya está en admin.js
     
-    // Enviar documento
-    $('.send-document').on('click', function() {
-        // Implementación pendiente
-        alert('Funcionalidad en desarrollo');
-    });
+    // Si hay un parámetro document_id en la URL, mostrar ese documento automáticamente
+    var urlParams = new URLSearchParams(window.location.search);
+    var documentId = urlParams.get('document_id');
     
-    // Verificar estado
-    $('.check-status').on('click', function() {
-        // Implementación pendiente
-        alert('Funcionalidad en desarrollo');
-    });
+    if (documentId) {
+        // Buscar el botón del documento y hacer clic en él
+        $('.view-document[data-id="' + documentId + '"]').click();
+    }
 });
 </script>

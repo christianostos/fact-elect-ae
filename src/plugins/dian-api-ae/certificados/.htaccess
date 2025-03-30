@@ -1,0 +1,5 @@
+# Denegar acceso a todos los archivos
+<FilesMatch ".*">
+  Order Allow,Deny
+  Deny from all
+</FilesMatch>

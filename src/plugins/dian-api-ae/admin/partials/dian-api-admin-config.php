@@ -33,6 +33,87 @@ if (!empty($cliente_seleccionado)) {
 
 <div class="wrap">
     <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
+
+    <div class="dian-api-debug-tools" style="margin-bottom: 15px; background: #f8f8f8; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+    <h3>Herramientas de diagnóstico</h3>
+    <p>Si experimentas problemas con la base de datos, utiliza estas herramientas:</p>
+        <button type="button" id="btn-diagnosticar-db" class="button">Diagnosticar Base de Datos</button>
+        <button type="button" id="btn-reparar-db" class="button button-primary">Reparar Base de Datos</button>
+        <span class="spinner" style="float:none;"></span>
+        <div id="diagnostico-resultado" style="margin-top: 10px; display:none;"></div>
+    </div>
+
+    <script type="text/javascript">
+    jQuery(document).ready(function($) {
+        $('#btn-diagnosticar-db').on('click', function() {
+            var $button = $(this);
+            var $spinner = $('.dian-api-debug-tools .spinner');
+            var $resultado = $('#diagnostico-resultado');
+            
+            $spinner.addClass('is-active');
+            $button.prop('disabled', true);
+            
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'dian_api_diagnosticar_db'
+                },
+                success: function(response) {
+                    $spinner.removeClass('is-active');
+                    $button.prop('disabled', false);
+                    
+                    if (response.success) {
+                        $resultado.html('<div style="background:#fff; padding:10px; border:1px solid #ddd;">' + response.data + '</div>').show();
+                    } else {
+                        $resultado.html('<div class="notice notice-error inline"><p>' + response.data + '</p></div>').show();
+                    }
+                },
+                error: function() {
+                    $spinner.removeClass('is-active');
+                    $button.prop('disabled', false);
+                    $resultado.html('<div class="notice notice-error inline"><p>Error en la comunicación con el servidor.</p></div>').show();
+                }
+            });
+        });
+        
+        $('#btn-reparar-db').on('click', function() {
+            if (!confirm('¿Está seguro de reparar la estructura de la base de datos? Esta acción intentará recrear la tabla.')) {
+                return;
+            }
+            
+            var $button = $(this);
+            var $spinner = $('.dian-api-debug-tools .spinner');
+            var $resultado = $('#diagnostico-resultado');
+            
+            $spinner.addClass('is-active');
+            $button.prop('disabled', true);
+            
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'dian_api_reparar_db'
+                },
+                success: function(response) {
+                    $spinner.removeClass('is-active');
+                    $button.prop('disabled', false);
+                    
+                    if (response.success) {
+                        $resultado.html('<div class="notice notice-success inline"><p>' + response.data + '</p><p>Por favor, <a href="' + window.location.href + '">recarga la página</a> y vuelve a intentar crear un cliente.</p></div>').show();
+                    } else {
+                        $resultado.html('<div class="notice notice-error inline"><p>' + response.data + '</p></div>').show();
+                    }
+                },
+                error: function() {
+                    $spinner.removeClass('is-active');
+                    $button.prop('disabled', false);
+                    $resultado.html('<div class="notice notice-error inline"><p>Error en la comunicación con el servidor.</p></div>').show();
+                }
+            });
+        });
+    });
+    </script>
     
     <div class="dian-api-tabs">
         <div class="dian-api-tab-navigation">
@@ -73,6 +154,7 @@ if (!empty($cliente_seleccionado)) {
                                         <td><?php echo esc_html(date('d/m/Y H:i', strtotime($cliente['fecha_creacion']))); ?></td>
                                         <td>
                                             <a href="<?php echo admin_url('admin.php?page=dian-api-config&cliente_id=' . urlencode($cliente['cliente_id'])); ?>" class="button button-small">Editar</a>
+                                            <button type="button" class="button button-small eliminar-cliente" data-id="<?php echo esc_attr($cliente['cliente_id']); ?>">Eliminar</button>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -121,15 +203,37 @@ if (!empty($cliente_seleccionado)) {
                     
                     <div class="dian-api-form-row">
                         <div class="dian-api-form-field">
-                            <label for="certificado_ruta">Ruta del Certificado</label>
-                            <input type="text" id="certificado_ruta" name="certificado_ruta" value="<?php echo esc_attr($cliente_actual ? $cliente_actual['certificado_ruta'] : ''); ?>">
-                            <p class="description">Ruta absoluta al archivo del certificado digital (.p12).</p>
+                            <label for="certificado_ruta">Certificado Digital (.p12) <span class="required">*</span></label>
+                            
+                            <div class="certificado-upload-container">
+                                <input type="text" id="certificado_ruta" name="certificado_ruta" 
+                                    value="<?php echo esc_attr($cliente_actual ? $cliente_actual['certificado_ruta'] : ''); ?>" 
+                                    placeholder="Ruta del certificado" required readonly>
+                                
+                                <div class="upload-buttons">
+                                    <button type="button" id="btn-cargar-certificado" class="button">Cargar Certificado</button>
+                                    <span class="spinner" style="float:none;"></span>
+                                </div>
+                                
+                                <input type="file" id="certificado_file" style="display:none;" accept=".p12,.pfx">
+                            </div>
+                            
+                            <p class="description">Cargue su certificado digital en formato PKCS#12 (.p12 o .pfx)</p>
+                            <div id="certificado_status" class="dian-api-certificate-status" style="margin-top: 10px; display:none;"></div>
                         </div>
                         
                         <div class="dian-api-form-field">
-                            <label for="certificado_clave">Clave del Certificado</label>
-                            <input type="password" id="certificado_clave" name="certificado_clave" value="<?php echo esc_attr($cliente_actual ? $cliente_actual['certificado_clave'] : ''); ?>">
-                            <p class="description">Contraseña del certificado digital.</p>
+                            <label for="certificado_clave">Clave del Certificado <span class="required">*</span></label>
+                            <input type="password" id="certificado_clave" name="certificado_clave" 
+                                value="<?php echo esc_attr($cliente_actual ? $cliente_actual['certificado_clave'] : ''); ?>" required>
+                            <p class="description">Contraseña del certificado digital proporcionada por la entidad certificadora.</p>
+                        </div>
+                    </div>
+
+                    <div class="dian-api-form-row">
+                        <div class="dian-api-form-field">
+                            <button type="button" id="btn-verificar-certificado" class="button">Verificar Certificado</button>
+                            <span class="spinner" style="float:none;"></span>
                         </div>
                     </div>
                     
@@ -151,7 +255,8 @@ if (!empty($cliente_seleccionado)) {
                         <div class="dian-api-form-field">
                             <label for="modo_operacion">Modo de Operación</label>
                             <select id="modo_operacion" name="modo_operacion">
-                                <option value="habilitacion" <?php selected($cliente_actual && $cliente_actual['modo_operacion'] == 'habilitacion'); ?>>Habilitación (Pruebas)</option>
+                                <option value="pruebas_internas" <?php selected($cliente_actual && $cliente_actual['modo_operacion'] == 'pruebas_internas'); ?>>Pruebas Internas (Sin DIAN)</option>
+                                <option value="habilitacion" <?php selected($cliente_actual && $cliente_actual['modo_operacion'] == 'habilitacion'); ?>>Habilitación (Pruebas DIAN)</option>
                                 <option value="produccion" <?php selected($cliente_actual && $cliente_actual['modo_operacion'] == 'produccion'); ?>>Producción</option>
                             </select>
                             <p class="description">Modo de operación del sistema.</p>
@@ -173,7 +278,7 @@ if (!empty($cliente_seleccionado)) {
                 </div>
                 
                 <form method="post" action="options.php" class="dian-api-form">
-                    <?php settings_fields('dian_api_options'); ?>
+                    <?php settings_fields('dian_api_company_options'); ?>
                     
                     <div class="dian-api-form-row">
                         <div class="dian-api-form-field">
@@ -233,7 +338,7 @@ if (!empty($cliente_seleccionado)) {
                 </div>
                 
                 <form method="post" action="options.php" class="dian-api-form">
-                    <?php settings_fields('dian_api_options'); ?>
+                    <?php settings_fields('dian_api_pdf_options'); ?>
                     
                     <div class="dian-api-form-row">
                         <div class="dian-api-form-field">
@@ -317,6 +422,127 @@ jQuery(document).ready(function($) {
         $('#url_ws_validacion').val('https://vpfe-hab.dian.gov.co/WcfDianCustomerServices.svc');
         $('#url_ws_produccion').val('https://vpfe.dian.gov.co/WcfDianCustomerServices.svc');
         $('#modo_operacion').val('habilitacion');
+    });
+
+    // Verificar certificado
+    $('#btn-verificar-certificado').on('click', function() {
+        var $button = $(this);
+        var $spinner = $button.next('.spinner');
+        var $status = $('#certificado_status');
+        var certificadoRuta = $('#certificado_ruta').val();
+        
+        if (!certificadoRuta) {
+            $status.html('<div class="notice notice-error inline"><p>Por favor ingrese la ruta del certificado primero.</p></div>').show();
+            return;
+        }
+        
+        $spinner.addClass('is-active');
+        $button.prop('disabled', true);
+        
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'dian_api_verificar_certificado',
+                nonce: '<?php echo wp_create_nonce('dian_api_nonce'); ?>',
+                certificado_ruta: certificadoRuta
+            },
+            success: function(response) {
+                $spinner.removeClass('is-active');
+                $button.prop('disabled', false);
+                
+                if (response.success) {
+                    $status.html('<div class="notice notice-success inline"><p>' + response.data + '</p></div>').show();
+                } else {
+                    $status.html('<div class="notice notice-error inline"><p>' + response.data + '</p></div>').show();
+                }
+            },
+            error: function() {
+                $spinner.removeClass('is-active');
+                $button.prop('disabled', false);
+                $status.html('<div class="notice notice-error inline"><p>Error en la comunicación con el servidor.</p></div>').show();
+            }
+        });
+    });
+
+    // Manejo de carga de certificado
+    $('#btn-cargar-certificado').on('click', function() {
+        $('#certificado_file').trigger('click');
+    });
+
+    $('#certificado_file').on('change', function() {
+        var file = this.files[0];
+        if (!file) return;
+        
+        // Verificar extensión
+        var extension = file.name.split('.').pop().toLowerCase();
+        if (extension !== 'p12' && extension !== 'pfx') {
+            alert('El archivo debe ser un certificado en formato PKCS#12 (.p12 o .pfx)');
+            return;
+        }
+        
+        // Mostrar spinner
+        var $spinner = $('#btn-cargar-certificado').next('.spinner');
+        $spinner.addClass('is-active');
+        
+        // Preparar datos para enviar
+        var formData = new FormData();
+        formData.append('action', 'dian_api_cargar_certificado');
+        formData.append('nonce', '<?php echo wp_create_nonce('dian_api_nonce'); ?>');
+        formData.append('certificado', file);
+        
+        // Enviar archivo vía AJAX
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function(response) {
+                $spinner.removeClass('is-active');
+                
+                if (response.success) {
+                    $('#certificado_ruta').val(response.data.ruta);
+                    $('#certificado_status').html('<div class="notice notice-success inline"><p>' + response.data.mensaje + '</p></div>').show();
+                } else {
+                    $('#certificado_status').html('<div class="notice notice-error inline"><p>' + response.data + '</p></div>').show();
+                }
+            },
+            error: function() {
+                $spinner.removeClass('is-active');
+                $('#certificado_status').html('<div class="notice notice-error inline"><p>Error en la comunicación con el servidor.</p></div>').show();
+            }
+        });
+    });
+
+    // Eliminar cliente
+    $(document).on('click', '.eliminar-cliente', function() {
+        var $button = $(this);
+        var clienteId = $button.data('id');
+        
+        if (confirm('¿Está seguro de eliminar este cliente? Esta acción no se puede deshacer.')) {
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'dian_api_eliminar_cliente',
+                    nonce: '<?php echo wp_create_nonce('dian_api_nonce'); ?>',
+                    cliente_id: clienteId
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.data);
+                        // Recargar la página para mostrar los cambios
+                        window.location.reload();
+                    } else {
+                        alert('Error: ' + response.data);
+                    }
+                },
+                error: function() {
+                    alert('Error en la comunicación con el servidor');
+                }
+            });
+        }
     });
 });
 </script>

@@ -218,6 +218,9 @@ if (!empty($cliente_seleccionado)) {
 
 <script type="text/javascript">
 jQuery(document).ready(function($) {
+    // Bandera para controlar envíos duplicados
+    var isSubmitting = false;
+    
     // Manejador de tabs
     $('.dian-api-tab-link').on('click', function(e) {
         e.preventDefault();
@@ -236,28 +239,133 @@ jQuery(document).ready(function($) {
     $('#form-resolucion').on('submit', function(e) {
         e.preventDefault();
         
+        // Si ya se está enviando, ignorar este clic
+        if (isSubmitting) {
+            console.log('Ya se está procesando una solicitud, ignorando clic adicional');
+            return false;
+        }
+        
         var $form = $(this);
         var $spinner = $form.find('.spinner');
-        var formData = $form.serialize();
+        var $boton = $form.find('button[type="submit"]');
         
+        // Activar bandera para prevenir envíos duplicados
+        isSubmitting = true;
+        
+        // Deshabilitar botón y mostrar spinner
+        $boton.prop('disabled', true);
         $spinner.addClass('is-active');
         
-        $.post(ajaxurl, formData, function(response) {
-            $spinner.removeClass('is-active');
-            
-            if (response.success) {
-                alert(response.data);
-                window.location.reload();
-            } else {
-                alert('Error: ' + response.data);
+        // Añadir un ID único para esta solicitud
+        var formData = $form.serialize() + '&request_id=' + Date.now();
+        
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: formData,
+            success: function(response) {
+                $spinner.removeClass('is-active');
+                
+                if (response.success) {
+                    // Mostrar mensaje de éxito
+                    alert(response.data);
+                    
+                    // Redirigir con un parámetro único para evitar caché
+                    window.location.href = window.location.pathname + 
+                        '?page=dian-api-resoluciones&t=' + Date.now();
+                } else {
+                    // Mostrar error y reactivar el botón
+                    alert('Error: ' + response.data);
+                    $boton.prop('disabled', false);
+                    isSubmitting = false;
+                }
+            },
+            error: function() {
+                // En caso de error, reactivar el botón
+                $spinner.removeClass('is-active');
+                $boton.prop('disabled', false);
+                isSubmitting = false;
+                alert('Error de comunicación con el servidor');
             }
         });
     });
     
     // Editar resolución
     $('.edit-resolucion').on('click', function() {
-        // Implementación pendiente
-        alert('Funcionalidad en desarrollo');
+        var id = $(this).data('id');
+        $('#tab-nueva').addClass('active').siblings('.dian-api-tab-content').removeClass('active');
+        $('.dian-api-tab-link[data-tab="nueva"]').addClass('active').siblings('.dian-api-tab-link').removeClass('active');
+        
+        // Cargar datos de la resolución
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'dian_api_obtener_resolucion',
+                nonce: '<?php echo wp_create_nonce('dian_api_nonce'); ?>',
+                id: id
+            },
+            success: function(response) {
+                if (response.success) {
+                    var resolucion = response.data;
+                    
+                    // Llenar formulario con datos de la resolución
+                    $('#resolucion_id').val(resolucion.id);
+                    $('#cliente_id').val(resolucion.cliente_id);
+                    $('#prefijo').val(resolucion.prefijo);
+                    $('#desde_numero').val(resolucion.desde_numero);
+                    $('#hasta_numero').val(resolucion.hasta_numero);
+                    $('#numero_resolucion').val(resolucion.numero_resolucion);
+                    $('#fecha_resolucion').val(resolucion.fecha_resolucion);
+                    $('#fecha_desde').val(resolucion.fecha_desde);
+                    $('#fecha_hasta').val(resolucion.fecha_hasta);
+                    $('#tipo_documento').val(resolucion.tipo_documento);
+                    $('#es_vigente').prop('checked', resolucion.es_vigente == 1);
+                    
+                    // Cambiar botón a "Actualizar"
+                    $('button[type="submit"]').text('Actualizar Resolución');
+                    
+                    // Añadir botón para eliminar
+                    if ($('#btn-eliminar-resolucion').length === 0) {
+                        $('<button>')
+                            .attr('type', 'button')
+                            .attr('id', 'btn-eliminar-resolucion')
+                            .addClass('button button-secondary')
+                            .css('margin-left', '10px')
+                            .text('Eliminar Resolución')
+                            .insertAfter('button[type="submit"]')
+                            .on('click', function() {
+                                eliminarResolucion(id);
+                            });
+                    }
+                } else {
+                    alert('Error: ' + response.data);
+                }
+            }
+        });
     });
+    
+    // Función para eliminar resolución
+    function eliminarResolucion(id) {
+        if (confirm('¿Está seguro de eliminar esta resolución? Esta acción no se puede deshacer.')) {
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'dian_api_eliminar_resolucion',
+                    nonce: '<?php echo wp_create_nonce('dian_api_nonce'); ?>',
+                    id: id
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.data);
+                        window.location.reload();
+                    } else {
+                        alert('Error: ' + response.data);
+                    }
+                }
+            });
+        }
+    }
 });
 </script>

@@ -149,10 +149,14 @@
                 </div>
             </td>
             <td class="header-col">
-                <div class="qr-code">
-                    <img src="<?php echo $datos_factura['qr_code']; ?>" />
+            <div class="qr-code">
+                <?php if (!empty($datos_factura['qr_code']) && file_exists($datos_factura['qr_code'])): ?>
+                    <img src="<?php echo $datos_factura['qr_code']; ?>" alt="Código QR de verificación" width="100" height="100" />
                     <p>Escanea para verificar</p>
-                </div>
+                <?php else: ?>
+                    <p>QR no disponible</p>
+                <?php endif; ?>
+            </div>
             </td>
         </tr>
     </table>
@@ -246,9 +250,29 @@
     
     <div class="cufe-info">
         <div class="section-title">INFORMACIÓN TÉCNICA</div>
-        <p><strong>CUFE:</strong> <?php echo htmlspecialchars($datos_factura['cufe'] ?? ''); ?></p>
+        <?php if (!empty($datos_factura['cufe'])): ?>
+            <p><strong>CUFE:</strong> <?php echo htmlspecialchars($datos_factura['cufe']); ?></p>
+        <?php elseif (!empty($datos_factura['track_id'])): ?>
+            <p><strong>TrackID:</strong> <?php echo htmlspecialchars($datos_factura['track_id']); ?></p>
+        <?php else: ?>
+            <p><strong>CUFE:</strong> Pendiente de validación DIAN</p>
+        <?php endif; ?>
+        
         <p><strong>Ambiente:</strong> <?php echo htmlspecialchars(ucfirst($datos_factura['ambiente'])); ?></p>
-        <p><strong>Fecha validación DIAN:</strong> <?php echo isset($datos_factura['fecha_validacion_dian']) ? date('d/m/Y H:i:s', strtotime($datos_factura['fecha_validacion_dian'])) : 'Pendiente'; ?></p>
+        
+        <p><strong>Estado:</strong> 
+            <span style="font-weight: bold; color: <?php echo ($datos_factura['estado'] === 'aceptado') ? 'green' : (($datos_factura['estado'] === 'rechazado') ? 'red' : 'orange'); ?>">
+                <?php echo htmlspecialchars(ucfirst($datos_factura['estado'])); ?>
+            </span>
+        </p>
+        
+        <?php if (!empty($datos_factura['descripcion_estado'])): ?>
+            <p><strong>Descripción:</strong> <?php echo htmlspecialchars($datos_factura['descripcion_estado']); ?></p>
+        <?php endif; ?>
+        
+        <?php if (!empty($datos_factura['fecha_validacion_dian'])): ?>
+            <p><strong>Fecha validación:</strong> <?php echo date('d/m/Y H:i:s', strtotime($datos_factura['fecha_validacion_dian'])); ?></p>
+        <?php endif; ?>
     </div>
     
     <?php if (isset($datos_factura['observaciones']) && !empty($datos_factura['observaciones'])): ?>

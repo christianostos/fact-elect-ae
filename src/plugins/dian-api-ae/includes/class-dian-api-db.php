@@ -242,6 +242,16 @@ class DIAN_API_DB {
             return false;
         }
         
+        // Para modo de pruebas, establecer valores predeterminados
+        if ($datos['modo_operacion'] === 'habilitacion') {
+            if (empty($datos['certificado_ruta'])) {
+                $datos['certificado_ruta'] = 'test_certificate.p12';
+            }
+            if (empty($datos['certificado_clave'])) {
+                $datos['certificado_clave'] = 'test_password';
+            }
+        }
+        
         // Verificar si ya existe el cliente
         $existe = $this->existe_cliente($datos['cliente_id']);
         
@@ -254,7 +264,7 @@ class DIAN_API_DB {
                     'certificado_clave' => $datos['certificado_clave'],
                     'id_software' => $datos['id_software'],
                     'software_pin' => $datos['software_pin'],
-                    'tecnologia_firma' => isset($datos['tecnologia_firma']) ? $datos['tecnologia_firma'] : 'sha1',
+                    // 'tecnologia_firma' => isset($datos['tecnologia_firma']) ? $datos['tecnologia_firma'] : 'sha1', // Removemos esta línea
                     'url_ws_validacion' => isset($datos['url_ws_validacion']) ? $datos['url_ws_validacion'] : '',
                     'url_ws_produccion' => isset($datos['url_ws_produccion']) ? $datos['url_ws_produccion'] : '',
                     'modo_operacion' => isset($datos['modo_operacion']) ? $datos['modo_operacion'] : 'habilitacion',
@@ -275,7 +285,7 @@ class DIAN_API_DB {
                     'certificado_clave' => $datos['certificado_clave'],
                     'id_software' => $datos['id_software'],
                     'software_pin' => $datos['software_pin'],
-                    'tecnologia_firma' => isset($datos['tecnologia_firma']) ? $datos['tecnologia_firma'] : 'sha1',
+                    // 'tecnologia_firma' => isset($datos['tecnologia_firma']) ? $datos['tecnologia_firma'] : 'sha1', // Removemos esta línea
                     'url_ws_validacion' => isset($datos['url_ws_validacion']) ? $datos['url_ws_validacion'] : '',
                     'url_ws_produccion' => isset($datos['url_ws_produccion']) ? $datos['url_ws_produccion'] : '',
                     'modo_operacion' => isset($datos['modo_operacion']) ? $datos['modo_operacion'] : 'habilitacion',
@@ -299,38 +309,54 @@ class DIAN_API_DB {
         global $wpdb;
         $tabla_api_keys = $wpdb->prefix . 'dian_api_keys';
         
-        // Validar datos mínimos necesarios
-        if (empty($datos['nombre'])) {
+        // Verificar si ya existe una clave con el mismo nombre
+        $existe = $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM $tabla_api_keys WHERE nombre = %s",
+            $datos['nombre']
+        ));
+        
+        if ($existe > 0) {
+            // Ya existe una API key con este nombre
             return false;
         }
         
-        // Generar claves seguras
-        $api_key = wp_generate_password(32, false);
-        $api_secret = wp_generate_password(64, true);
+        // Usar transacción para evitar problemas de concurrencia
+        $wpdb->query('START TRANSACTION');
         
-        // Crear nueva API Key
-        $resultado = $wpdb->insert(
-            $tabla_api_keys,
-            array(
-                'nombre' => $datos['nombre'],
-                'api_key' => $api_key,
-                'api_secret' => $api_secret,
-                'estado' => 'activo',
-                'usuario_id' => isset($datos['usuario_id']) ? $datos['usuario_id'] : null,
-                'permisos' => isset($datos['permisos']) ? $datos['permisos'] : null,
-                'fecha_creacion' => current_time('mysql')
-            )
-        );
-        
-        if ($resultado) {
-            return array(
-                'id' => $wpdb->insert_id,
-                'api_key' => $api_key,
-                'api_secret' => $api_secret
+        try {
+            // Generar claves seguras
+            $api_key = wp_generate_password(32, false);
+            $api_secret = wp_generate_password(64, true);
+            
+            // Crear nueva API Key
+            $resultado = $wpdb->insert(
+                $tabla_api_keys,
+                array(
+                    'nombre' => $datos['nombre'],
+                    'api_key' => $api_key,
+                    'api_secret' => $api_secret,
+                    'estado' => 'activo',
+                    'usuario_id' => isset($datos['usuario_id']) ? $datos['usuario_id'] : null,
+                    'permisos' => isset($datos['permisos']) ? $datos['permisos'] : null,
+                    'fecha_creacion' => current_time('mysql')
+                )
             );
+            
+            if ($resultado) {
+                $wpdb->query('COMMIT');
+                return array(
+                    'id' => $wpdb->insert_id,
+                    'api_key' => $api_key,
+                    'api_secret' => $api_secret
+                );
+            } else {
+                $wpdb->query('ROLLBACK');
+                return false;
+            }
+        } catch (Exception $e) {
+            $wpdb->query('ROLLBACK');
+            return false;
         }
-        
-        return false;
     }
     
     /**
@@ -802,6 +828,42 @@ class DIAN_API_DB {
             ARRAY_A
         );
     }
+
+    /**
+     * Actualizar un documento por ID
+     *
+     * @since    1.0.0
+     * @param    int       $id               ID del documento
+     * @param    array     $datos_actualizacion    Datos a actualizar
+     * @return   boolean   True si se actualizó correctamente, false en caso contrario
+     */
+    public function actualizar_documento_por_id($id, $datos_actualizacion) {
+        global $wpdb;
+        $tabla_documentos = $wpdb->prefix . 'dian_documentos';
+        
+        $datos = array(
+            'fecha_actualizacion' => current_time('mysql')
+        );
+        
+        $campos_permitidos = array(
+            'estado', 'cufe', 'qr_data', 'cude', 'archivo_xml', 
+            'archivo_pdf', 'track_id', 'respuesta_dian', 'error_dian'
+        );
+        
+        foreach ($campos_permitidos as $campo) {
+            if (isset($datos_actualizacion[$campo])) {
+                $datos[$campo] = $datos_actualizacion[$campo];
+            }
+        }
+        
+        $resultado = $wpdb->update(
+            $tabla_documentos,
+            $datos,
+            array('id' => $id)
+        );
+        
+        return $resultado !== false;
+    }
     
     /**
      * Actualizar estado de un documento por TrackID
@@ -922,20 +984,17 @@ class DIAN_API_DB {
             }
         }
         
-        // Verificar si ya existe la resolución
-        $id_existente = $this->existe_resolucion(
-            $datos_resolucion['cliente_id'],
-            $datos_resolucion['prefijo'] ?? '',
-            $datos_resolucion['numero_resolucion']
-        );
-        
         $fecha_actual = current_time('mysql');
         
-        if ($id_existente) {
+        // Comprobar si hay un ID proporcionado (actualización)
+        if (!empty($datos_resolucion['id']) && $datos_resolucion['id'] > 0) {
             // Actualizar resolución existente
             $datos_actualizar = array(
+                'cliente_id' => $datos_resolucion['cliente_id'],
+                'prefijo' => isset($datos_resolucion['prefijo']) ? $datos_resolucion['prefijo'] : '',
                 'desde_numero' => $datos_resolucion['desde_numero'],
                 'hasta_numero' => $datos_resolucion['hasta_numero'],
+                'numero_resolucion' => $datos_resolucion['numero_resolucion'],
                 'fecha_resolucion' => $datos_resolucion['fecha_resolucion'],
                 'fecha_desde' => $datos_resolucion['fecha_desde'],
                 'fecha_hasta' => $datos_resolucion['fecha_hasta'],
@@ -947,10 +1006,10 @@ class DIAN_API_DB {
             $resultado = $wpdb->update(
                 $tabla_resoluciones,
                 $datos_actualizar,
-                array('id' => $id_existente)
+                array('id' => $datos_resolucion['id'])
             );
             
-            return $resultado !== false ? $id_existente : false;
+            return $resultado !== false ? $datos_resolucion['id'] : false;
         } else {
             // Crear nueva resolución
             $datos_insertar = array(
