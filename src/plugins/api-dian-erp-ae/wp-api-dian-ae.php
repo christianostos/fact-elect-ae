@@ -33,3 +33,23 @@ require_once( __DIR__ . '/includes/admin/send/api-resolution.php');
 require_once( __DIR__ . '/includes/admin/send/api-initial.php');
 require_once( __DIR__ . '/includes/admin/send/api-environment.php');
 require_once( __DIR__ . '/includes/admin/send/api-numbering-ranges.php');
+
+function register_dian_admin_assets() {
+    // Registrar el CSS
+    wp_register_style(
+        'dian-admin-styles',
+        plugins_url('assets/css/admin-styles.css', __FILE__),
+        array(),
+        filemtime(plugin_dir_path(__FILE__) . 'assets/css/admin-styles.css')
+    );
+    
+    // Registrar el JS
+    wp_register_script(
+        'dian-admin-script',
+        plugins_url('assets/js/admin-script.js', __FILE__),
+        array('jquery'),
+        filemtime(plugin_dir_path(__FILE__) . 'assets/js/admin-script.js'),
+        true
+    );
+}
+add_action('init', 'register_dian_admin_assets');
